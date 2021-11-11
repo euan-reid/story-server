@@ -1,24 +1,24 @@
 """
-It'll do stuff (later)
+Runs the app
 """
-from fastapi import FastAPI
+from pathlib import Path
+
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+
 
 app = FastAPI(default_response_class=HTMLResponse)
 
+template_path = Path(__file__).resolve().parent / 'html'
+templates = Jinja2Templates(directory=str(template_path))
+
 @app.get('/')
-async def home():
+async def home(request: Request):
     """
     Shows the homepage
     """
-    return '''
-    <!DOCTYPE html>
-    <html>
-        <head>
-            <title>Page!</title>
-        </head>
-        <body>
-            <p>Test!</p>
-        </body>
-    </html>
-    '''
+    return templates.TemplateResponse(
+        name='test.html',
+        context={'request': request}
+    )
