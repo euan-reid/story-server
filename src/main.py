@@ -2,14 +2,16 @@
 Runs the app
 """
 from pathlib import Path
+from typing import Literal
 
 from fastapi import FastAPI, Request, status
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from google.cloud import datastore
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-
+client = datastore.Client()
 app = FastAPI(default_response_class=HTMLResponse, openapi_url=None)
 
 template_path = Path(__file__).resolve().parent / 'html'
@@ -17,7 +19,13 @@ templates = Jinja2Templates(directory=str(template_path))
 
 
 @app.exception_handler(StarletteHTTPException)
-async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> HTMLResponse:
+async def custom_http_exception_handler(
+    request: Request,
+    exc: StarletteHTTPException
+) -> HTMLResponse:
+    """
+    Renders a 404 template page for 404 errors, otherwise use default behaviour
+    """
     if exc.status_code == status.HTTP_404_NOT_FOUND:
         return templates.TemplateResponse(
             name='404.html',
@@ -36,4 +44,25 @@ async def home(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(
         name='test.html',
         context={'request': request}
+    )
+
+
+@app.get('/{category}/{item_id}')
+async def page(
+    request: Request,
+    category: Literal['author', 'series', 'story'],
+    item_id: str
+) -> HTMLResponse:
+    """
+    Shows a page
+    """
+    key = client.key(category, item_id)
+    result = client.get(key)
+
+    if result is None:
+        raise StarletteHTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    return templates.TemplateResponse(
+        name=f'{category}.html',
+        context={'request': request, 'id': item_id}
     )

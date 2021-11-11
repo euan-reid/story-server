@@ -1,4 +1,5 @@
 fastapi
+google-cloud-datastore
 jinja2
 markdown
 uvicorn

@@ -43,9 +43,10 @@
 	},
 
 	"containerEnv": {
+		"PYTHONPATH": "${containerWorkspaceFolder}/src",
+		"GOOGLE_CLOUD_PROJECT": "story-server",
 		"CLOUDSDK_CORE_PROJECT": "story-server",
 		"DATASTORE_EMULATOR_HOST": "127.0.0.1:9090",
-		"PYTHONPATH": "${containerWorkspaceFolder}/src",
 		"CLOUDSDK_PYTHON": "/usr/bin/python3"
 	}
 }
