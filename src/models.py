@@ -6,7 +6,8 @@ from uuid import uuid4, UUID
 from google.cloud import datastore
 from pydantic import BaseModel, Field, UUID4
 
-T = TypeVar('T')
+T = TypeVar('T', bound='DatastoreModel')
+C = TypeVar('C', bound='DatastoreModel')
 
 client = datastore.Client()
 
@@ -80,11 +81,11 @@ class DatastoreModel(BaseModel):
 
     @classmethod
     @property
-    def subclasses(cls) -> List[str]:
+    def subclasses(cls: Type[T]) -> List[str]:
         return [s.datastore_kind for s in cls.__subclasses__()]
 
     @classmethod
-    def from_id(cls: Type[T], id: UUID4) -> T:
+    def from_id(cls: Type[T], id: UUID4) -> T
         key = client.key(cls.datastore_kind, id)
         result = client.get(key)
 
@@ -109,13 +110,13 @@ class DatastoreModel(BaseModel):
         query = query.add_filter(filter_by, '=', filter_for)
         return [cls.parse_obj(result) for result in query.fetch()]
 
-    def children_of_type(self, child_type: Type[T]) -> List[T]:
+    def children_of_type(self: Type[T], child_type: Type[C]) -> List[C]:
         return child_type.from_query(
             filter_by=self.datastore_kind,
             filter_for=str(self.id)
         )
 
-    def save(self) -> None:
+    def save(self: Type[T]) -> None:
         client.put(self.as_datastore_entity())
 
 
@@ -123,7 +124,7 @@ class Author(DatastoreModel):
     name: str
 
     @property
-    def stories(self) -> List[Story]:
+    def stories(self: Type[T]) -> List[Story]:
         return self.children_of_type(Story)
 
     @classmethod
@@ -137,7 +138,7 @@ class Universe(DatastoreModel):
     name: str
 
     @property
-    def series(self) -> List[Series]:
+    def series(self: Type[T]) -> List[Series]:
         return self.children_of_type(Series)
 
 
@@ -146,11 +147,11 @@ class Series(DatastoreModel):
     universe_id: UUID4
 
     @property
-    def universe(self) -> Universe:
-        return Universe.from_datastore(id=self.universe_id)
+    def universe(self: Type[T]) -> Universe:
+        return Universe.from_id(id=self.universe_id)
 
     @property
-    def stories(self) -> List[Story]:
+    def stories(self: Type[T]) -> List[Story]:
         return self.children_of_type(Story)
 
     @property
@@ -168,12 +169,12 @@ class Story(DatastoreModel):
         return self.series.datastore_key
 
     @property
-    def author(self) -> Author:
-        return Author.from_datastore(id=self.author_id)
+    def author(self: Type[T]) -> Author:
+        return Author.from_id(id=self.author_id)
 
     @property
-    def series(self) -> Series:
-        return Series.from_datastore(id=self.series_id)
+    def series(self: Type[T]) -> Series:
+        return Series.from_id(id=self.series_id)
 
 
 T.__constraints__ = tuple(DatastoreModel.__subclasses__())
