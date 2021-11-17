@@ -1,13 +1,56 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import List, Literal, Type, TypeVar
-from uuid import uuid4
+from uuid import uuid4, UUID
 from google.cloud import datastore
 from pydantic import BaseModel, Field, UUID4
 
 T = TypeVar('T')
 
 client = datastore.Client()
+
+
+def is_instance_of_datastore_basic_type(o: object) -> bool:
+    return isinstance(o, (datetime, bool, float, int, str, None))
+
+
+def datastore_dict_conversion(d: dict) -> dict:
+    converted = {}
+    for k, v in d.items():
+        if isinstance(v, UUID):
+            converted[k] = str(v)
+        elif is_instance_of_datastore_basic_type(v):
+            converted[k] = v
+        elif (isinstance(v, list)):
+            converted[k] = datastore_list_conversion(v)
+        elif (isinstance(v, dict)):
+            converted[k] = datastore_dict_conversion(v)
+        else:
+            raise ValueError(
+                f'{type(v)} could not be serialised to Datastore, must be one '
+                f'of {(datetime, bool, float, int, str, None, list, dict)}. (found at {k}: {v})'
+            )
+    return converted
+
+
+def datastore_list_conversion(a_list: list) -> list:
+    converted = []
+    for i in a_list:
+        if isinstance(i, UUID):
+            converted.append(str(i))
+        elif is_instance_of_datastore_basic_type(v):
+            converted.append(i)
+        elif (isinstance(i, list)):
+            converted.append(datastore_list_conversion(i))
+        elif (isinstance(i, dict)):
+            converted.append(datastore_dict_conversion(i))
+        else:
+            raise ValueError(
+                f'{type(i)} could not be serialised to Datastore, must be one '
+                f'of {(datetime, bool, float, int, str, None, list, dict)}. (found at {i})'
+            )
+    return converted
 
 
 class DatastoreModel(BaseModel):
@@ -17,6 +60,16 @@ class DatastoreModel(BaseModel):
     @property
     def datastore_kind(cls: Type[T]) -> str:
         return cls.__name__.lower()
+
+    @property
+    def datastore_key(self: Type[T]) -> datastore.Key:
+        return client.key(self.datastore_kind, str(self.id))
+
+    def as_datastore_entity(self: Type[T]) -> datastore.Entity:
+        entity = datastore.Entity(key=self.datastore_key)
+        self_as_dict = datastore_dict_conversion(self.dict())
+        entity.update(self_as_dict)
+        return entity
 
     @classmethod
     @property
@@ -52,8 +105,11 @@ class DatastoreModel(BaseModel):
     def children_of_type(self, child_type: Type[T]) -> List[T]:
         return child_type.from_query(
             filter_by=self.datastore_kind,
-            filter_for=self.id
+            filter_for=str(self.id)
         )
+
+    def save(self) -> None:
+        client.put(self.as_datastore_entity())
 
 
 class Author(DatastoreModel):
@@ -62,6 +118,12 @@ class Author(DatastoreModel):
     @property
     def stories(self) -> List[Story]:
         return self.children_of_type(Story)
+
+    @classmethod
+    def from_name(cls: Type[T], name: str) -> T:
+        query = client.query(kind=cls.datastore_kind)
+        query = query.add_filter('name', '=', name)
+        return [cls.parse_obj(result) for result in query.fetch()][0]
 
 
 class Universe(DatastoreModel):
@@ -87,8 +149,8 @@ class Series(DatastoreModel):
 
 class Story(DatastoreModel):
     title: str
-    author_id: Author
-    series_id: Series
+    author_id: UUID4
+    series_id: UUID4
 
     @property
     def author(self) -> Author:
