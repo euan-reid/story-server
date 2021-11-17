@@ -2,14 +2,16 @@
 Runs the app
 """
 from pathlib import Path
-from typing import Literal
 
 from fastapi import FastAPI, Request, status
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from google.cloud import datastore
+from pydantic.types import UUID4
 from starlette.exceptions import HTTPException as StarletteHTTPException
+
+from models import categories_literal, DatastoreModel
 
 client = datastore.Client()
 app = FastAPI(default_response_class=HTMLResponse, openapi_url=None)
@@ -50,19 +52,21 @@ async def home(request: Request) -> HTMLResponse:
 @app.get('/{category}/{item_id}')
 async def page(
     request: Request,
-    category: Literal['author', 'series', 'story'],
-    item_id: str
+    category: categories_literal,
+    item_id: UUID4
 ) -> HTMLResponse:
     """
     Shows a page
     """
-    key = client.key(category, item_id)
-    result = client.get(key)
+    resource = DatastoreModel.from_type_and_id(
+        subclass_name=category,
+        id=item_id
+    )
 
-    if result is None:
+    if resource is None:
         raise StarletteHTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
     return templates.TemplateResponse(
         name=f'{category}.html',
-        context={'request': request, 'id': item_id}
+        context={'request': request, 'id': item_id, 'resource': resource}
     )
