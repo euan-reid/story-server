@@ -62,8 +62,15 @@ class DatastoreModel(BaseModel):
         return cls.__name__.lower()
 
     @property
+    def datastore_parent_key(self: Type[T]) -> datastore.Key:
+        return None
+
+    @property
     def datastore_key(self: Type[T]) -> datastore.Key:
-        return client.key(self.datastore_kind, str(self.id))
+        return client.key(
+            self.datastore_kind, str(self.id),
+            parent=self.datastore_parent_key
+        )
 
     def as_datastore_entity(self: Type[T]) -> datastore.Entity:
         entity = datastore.Entity(key=self.datastore_key)
@@ -146,11 +153,19 @@ class Series(DatastoreModel):
     def stories(self) -> List[Story]:
         return self.children_of_type(Story)
 
+    @property
+    def datastore_parent_key(self: Type[T]) -> datastore.Key:
+        return self.universe.datastore_key
+
 
 class Story(DatastoreModel):
     title: str
     author_id: UUID4
     series_id: UUID4
+
+    @property
+    def datastore_parent_key(self: Type[T]) -> datastore.Key:
+        return self.series.datastore_key
 
     @property
     def author(self) -> Author:
