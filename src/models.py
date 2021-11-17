@@ -19,7 +19,7 @@ class DatastoreModel(BaseModel):
 
     @classmethod
     @property
-    def types(cls) -> List[str]:
+    def subclasses(cls) -> List[str]:
         return [s.datastore_kind for s in cls.__subclasses__()]
 
     @classmethod
@@ -34,7 +34,7 @@ class DatastoreModel(BaseModel):
 
     @classmethod
     def from_type_and_id(cls: Type[T], subclass_name: str, id: UUID4) -> T:
-        if subclass_name not in cls.types:
+        if subclass_name not in cls.subclasses:
             raise ValueError(f'Invalid type {subclass_name}')
         subclass = [
             s for s in cls.__subclasses__()
@@ -99,4 +99,4 @@ class Story(DatastoreModel):
 
 
 T.__constraints__ = tuple(DatastoreModel.__subclasses__())
-categories_literal = Literal[tuple(DatastoreModel.types)]
+categories_literal = Literal[tuple(DatastoreModel.subclasses)]
