@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from typing import List, Literal, Type, TypeVar
+from uuid import uuid4
 from google.cloud import datastore
-from pydantic import BaseModel, UUID4
+from pydantic import BaseModel, Field, UUID4
 
 T = TypeVar('T')
 
@@ -10,7 +11,7 @@ client = datastore.Client()
 
 
 class DatastoreModel(BaseModel):
-    id: UUID4
+    id: UUID4 = Field(default_factory=uuid4)
 
     @classmethod
     @property
