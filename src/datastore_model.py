@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, ClassVar, Dict, List, Optional, Type, TypeVar
+from typing import Any, ClassVar, Dict, List, Optional, Type, TypeVar, cast
 from uuid import UUID, uuid4
 
 from google.cloud import datastore
 from pydantic import UUID4, BaseModel, Field
+
+# mypy can't handle tuples in isinstance calls even though they're valid
+# a bug has been open since 2018 to fix it - just ignore the errors
+DATASTORE_BASIC_TYPES = (datetime, bool, float, int, str, None)
 
 T = TypeVar('T', bound='DatastoreModel')
 C = TypeVar('C', bound='DatastoreModel')
@@ -13,16 +17,12 @@ C = TypeVar('C', bound='DatastoreModel')
 client = datastore.Client()
 
 
-def is_instance_of_datastore_basic_type(o: object) -> bool:
-    return isinstance(o, (datetime, bool, float, int, str, None))
-
-
 def datastore_dict_conversion(d: Dict[str, Any]) -> Dict[str, Any]:
     converted: Dict[str, Any] = {}
     for k, v in d.items():
         if isinstance(v, UUID):
             converted[k] = str(v)
-        elif is_instance_of_datastore_basic_type(v):
+        elif isinstance(v, DATASTORE_BASIC_TYPES):  # type: ignore
             converted[k] = v
         elif (isinstance(v, list)):
             converted[k] = datastore_list_conversion(v)
@@ -42,7 +42,7 @@ def datastore_list_conversion(a_list: List[Any]) -> List[Any]:
     for i in a_list:
         if isinstance(i, UUID):
             converted.append(str(i))
-        elif is_instance_of_datastore_basic_type(i):
+        elif isinstance(i, DATASTORE_BASIC_TYPES):  # type: ignore
             converted.append(i)
         elif (isinstance(i, list)):
             converted.append(datastore_list_conversion(i))
@@ -61,16 +61,21 @@ class DatastoreModel(BaseModel):
     id: UUID4 = Field(default_factory=uuid4)
     name: str
     default_lookup_field: ClassVar[str] = 'id'
-    parent: Optional[T] = None
+    parent: Optional[DatastoreModel] = None
 
     @classmethod
     @property
     def subclasses(cls: Type[T]) -> List[str]:
-        return [s.datastore_kind for s in cls.__subclasses__()]
+        # We should be able to just return [s.data...] but mypy doesn't agree
+        # Worth rechecking every so often for a bugfix in mypy
+        classes = [s.datastore_kind for s in cls.__subclasses__()]
+        return cast(List[str], classes)
 
     @classmethod
     def subclass_from_name(cls: Type[T], subclass_name: str) -> Type[T]:
-        if subclass_name not in cls.subclasses:
+        # cast() is unnecessary here too, but ditto above mypy struggles with
+        # it and keeping mypy happy on defaults has value
+        if subclass_name not in cast(List[str], cls.subclasses):
             raise ValueError(f'Invalid type {subclass_name}')
         subclass = next((
             s for s in cls.__subclasses__()
