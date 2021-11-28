@@ -87,7 +87,7 @@ class DatastoreModel(BaseModel):
         return cls.__name__.lower()
 
     @property
-    def datastore_parent_key(self: T) -> datastore.Key:
+    def datastore_parent_key(self: T) -> Optional[datastore.Key]:
         if self.parent:
             return self.parent.datastore_key
         return None
