@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import ClassVar, List, Optional, Type, TypeVar
-from uuid import uuid4, UUID
+from uuid import UUID, uuid4
+
 from google.cloud import datastore
-from pydantic import BaseModel, Field, UUID4
+from pydantic import UUID4, BaseModel, Field
 
 T = TypeVar('T', bound='DatastoreModel')
 C = TypeVar('C', bound='DatastoreModel')

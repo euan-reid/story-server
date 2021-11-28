@@ -10,8 +10,8 @@ from fastapi.templating import Jinja2Templates
 from google.cloud import datastore
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from content_models import categories_literal
 from config import settings
+from content_models import categories_literal
 from datastore_model import DatastoreModel
 
 client = datastore.Client()
