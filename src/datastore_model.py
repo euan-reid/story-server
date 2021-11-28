@@ -4,7 +4,8 @@ from datetime import datetime
 from typing import Any, ClassVar, Dict, List, Optional, Type, TypeVar, cast
 from uuid import UUID, uuid4
 
-from google.cloud import datastore
+# google.cloud does dynamic build things, so can't be static type checked
+from google.cloud import datastore  # mypy: ignore
 from pydantic import UUID4, BaseModel, Field
 
 # mypy can't handle tuples in isinstance calls even though they're valid
