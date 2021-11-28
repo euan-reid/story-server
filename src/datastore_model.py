@@ -122,6 +122,13 @@ class DatastoreModel(BaseModel):
         return cls.parse_obj(result)
 
     @classmethod
+    def from_id_or_exception(cls: Type[T], id: UUID4) -> T:
+        result = cls.from_id(id)
+        if result is None:
+            raise Exception(f'{cls.name} with id {id} not found')
+        return result
+
+    @classmethod
     def from_type_and_id(cls: Type[T], name: str, id: UUID4) -> Optional[T]:
         subclass = cls.subclass_from_name(name)
         return subclass.from_id(id)

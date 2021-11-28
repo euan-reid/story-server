@@ -24,7 +24,7 @@ class Series(DatastoreModel):
 
     @property
     def universe(self: Series) -> Universe:
-        return Universe.from_id(id=self.universe_id)
+        return Universe.from_id_or_exception(id=self.universe_id)
 
     @property
     def stories(self: Series) -> List[Story]:
@@ -32,7 +32,11 @@ class Series(DatastoreModel):
 
     @validator('parent', always=True)
     def set_parent(cls, _, values) -> Universe:
-        return Universe.from_id(values['universe_id'])
+        parent = Universe.from_id(values['universe_id'])
+        if parent is None:
+            # TODO: Throw an error or trigger a JIT creation flow
+            pass
+        return parent
 
 
 class Story(DatastoreModel):
@@ -41,7 +45,11 @@ class Story(DatastoreModel):
 
     @validator('parent', always=True)
     def set_parent(cls, _, values) -> Series:
-        return Series.from_id(values['series_id'])
+        parent = Series.from_id(values['series_id'])
+        if parent is None:
+            # TODO: Throw an error or trigger a JIT creation flow
+            pass
+        return parent
 
     @property
     def title(self: Story) -> str:
@@ -49,7 +57,7 @@ class Story(DatastoreModel):
 
     @property
     def author(self: Story) -> Author:
-        return Author.from_id(id=self.author_id)
+        return Author.from_id_or_exception(id=self.author_id)
 
 
 categories_literal = Literal[tuple(DatastoreModel.subclasses)]
