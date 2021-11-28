@@ -8,16 +8,12 @@ from datastore_model import DatastoreModel
 
 
 class Author(DatastoreModel):
-    default_lookup_field: ClassVar[str] = 'name'
-
     @property
     def stories(self: Author) -> List[Story]:
         return self.children_of_type(Story)
 
 
 class Universe(DatastoreModel):
-    name: str
-
     @property
     def series(self: Universe) -> List[Series]:
         return self.children_of_type(Series)
