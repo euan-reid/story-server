@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import ClassVar, List, Optional, Type, TypeVar
+from typing import Any, ClassVar, Dict, List, Optional, Type, TypeVar
 from uuid import UUID, uuid4
 
 from google.cloud import datastore
@@ -17,8 +17,8 @@ def is_instance_of_datastore_basic_type(o: object) -> bool:
     return isinstance(o, (datetime, bool, float, int, str, None))
 
 
-def datastore_dict_conversion(d: dict) -> dict:
-    converted = {}
+def datastore_dict_conversion(d: Dict[str, Any]) -> Dict[str, Any]:
+    converted: Dict[str, Any] = {}
     for k, v in d.items():
         if isinstance(v, UUID):
             converted[k] = str(v)
@@ -37,8 +37,8 @@ def datastore_dict_conversion(d: dict) -> dict:
     return converted
 
 
-def datastore_list_conversion(a_list: list) -> list:
-    converted = []
+def datastore_list_conversion(a_list: List[Any]) -> List[Any]:
+    converted: List[Any] = []
     for i in a_list:
         if isinstance(i, UUID):
             converted.append(str(i))
