@@ -1,4 +1,5 @@
-{% include 'boilerplate/header.html' %}
+{% extends 'boilerplate/template.html' %}
+{% block content %}
 <p>Name: {{ resource.name }}</p>
 <p>Stories:</p>
 <ul>
@@ -6,4 +7,4 @@
     <li>{{ story.name }}</li>
     {% endfor %}
 </ul>
-{% include 'boilerplate/footer.html' %}
+{% endblock %}
