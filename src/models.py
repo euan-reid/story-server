@@ -131,7 +131,7 @@ class Author(DatastoreModel):
     def from_name(cls: Type[T], name: str) -> T:
         query = client.query(kind=cls.datastore_kind)
         query = query.add_filter('name', '=', name)
-        return [cls.parse_obj(result) for result in query.fetch()][0]
+        return next((cls.parse_obj(result) for result in query.fetch()), None)
 
 
 class Universe(DatastoreModel):
