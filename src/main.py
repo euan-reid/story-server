@@ -2,7 +2,6 @@
 Runs the app
 """
 from pathlib import Path
-from typing import Type
 
 from fastapi import FastAPI, Request, status
 from fastapi.exception_handlers import http_exception_handler
@@ -23,13 +22,15 @@ templates = Jinja2Templates(directory=str(template_path))
 
 def format_template(
     request: Request,
+    header_title: str,
     page_title: str,
     category: str,
-    resource: Type[models.DatastoreModel]
+    resource: models.DatastoreModel
 ) -> templates.TemplateResponse:
     return templates.TemplateResponse(
         name=f'{category}.html',
         context={
+            'header_title': header_title,
             'page_title': page_title,
             'request': request,
             'resource': resource
@@ -73,7 +74,7 @@ async def author_by_name(request: Request, name: str) -> models.Author:
     if author is None:
         raise StarletteHTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-    return format_template(request, author.name, 'author', author)
+    return format_template(request, author.name, author.name, 'author', author)
 
 
 @app.get('/{category}/{item_id}')
@@ -93,4 +94,4 @@ async def page(
     if resource is None:
         raise StarletteHTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-    return format_template(request, resource.name, category, resource)
+    return format_template(request, resource.name, resource.name, category, resource)
