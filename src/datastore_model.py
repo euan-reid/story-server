@@ -41,7 +41,7 @@ def datastore_list_conversion(a_list: list) -> list:
     for i in a_list:
         if isinstance(i, UUID):
             converted.append(str(i))
-        elif is_instance_of_datastore_basic_type(v):
+        elif is_instance_of_datastore_basic_type(i):
             converted.append(i)
         elif (isinstance(i, list)):
             converted.append(datastore_list_conversion(i))
