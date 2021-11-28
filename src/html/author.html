@@ -1,0 +1,9 @@
+{% include 'boilerplate/header.html' %}
+<p>Name: {{ resource.name }}</p>
+<p>Stories:</p>
+<ul>
+    {% for story in resource.stories %}
+    <li>{{ story.name }}</li>
+    {% endfor %}
+</ul>
+{% include 'boilerplate/footer.html' %}
