@@ -32,10 +32,8 @@ class Series(DatastoreModel):
 
     @validator('parent', always=True)
     def set_parent(cls, _, values) -> Universe:
-        parent = Universe.from_id(values['universe_id'])
-        if parent is None:
-            # TODO: Throw an error or trigger a JIT creation flow
-            pass
+        # TODO: Consider JIT creation instead
+        parent = Universe.from_id_or_exception(values['universe_id'])
         return parent
 
 
@@ -45,10 +43,8 @@ class Story(DatastoreModel):
 
     @validator('parent', always=True)
     def set_parent(cls, _, values) -> Series:
-        parent = Series.from_id(values['series_id'])
-        if parent is None:
-            # TODO: Throw an error or trigger a JIT creation flow
-            pass
+        # TODO: Consider JIT creation instead
+        parent = Series.from_id_or_exception(values['series_id'])
         return parent
 
     @property
