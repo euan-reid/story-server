@@ -71,10 +71,10 @@ class DatastoreModel(BaseModel):
     def subclass_from_name(cls: Type[T], subclass_name: str) -> Type[T]:
         if subclass_name not in cls.subclasses:
             raise ValueError(f'Invalid type {subclass_name}')
-        subclass = next([
+        subclass = next((
             s for s in cls.__subclasses__()
             if s.__name__.lower() == subclass_name
-        ], None)
+        ), None)
         if subclass is None:
             # This path should never be exercised but guard for it just in case
             raise ValueError(f'Could not retrieve {subclass_name}')
@@ -128,7 +128,7 @@ class DatastoreModel(BaseModel):
     @classmethod
     def from_unique_lookup(cls: Type[T], by: str, look_for: str) -> Optional[T]:
         query_result = cls.from_query(filter_by=by, filter_for=look_for)
-        return next(query_result, None)
+        return next(iter(query_result), None)
 
     @classmethod
     def from_name(cls: Type[T], name: str) -> Optional[T]:
