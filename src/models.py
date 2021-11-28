@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Literal, Type, TypeVar
+from typing import ClassVar, List, Literal, Optional, Type, TypeVar
 from uuid import uuid4, UUID
 from google.cloud import datastore
 from pydantic import BaseModel, Field, UUID4
@@ -56,6 +56,12 @@ def datastore_list_conversion(a_list: list) -> list:
 
 class DatastoreModel(BaseModel):
     id: UUID4 = Field(default_factory=uuid4)
+    default_lookup_field: ClassVar[str] = 'id'
+
+    @classmethod
+    @property
+    def subclasses(cls: Type[T]) -> List[str]:
+        return [s.datastore_kind for s in cls.__subclasses__()]
 
     @classmethod
     @property
@@ -80,12 +86,13 @@ class DatastoreModel(BaseModel):
         return entity
 
     @classmethod
-    @property
-    def subclasses(cls: Type[T]) -> List[str]:
-        return [s.datastore_kind for s in cls.__subclasses__()]
+    def from_query(cls: Type[T], filter_by: str, filter_for: str) -> List[T]:
+        query = client.query(kind=cls.datastore_kind)
+        query = query.add_filter(filter_by, '=', filter_for)
+        return [cls.parse_obj(result) for result in query.fetch()]
 
     @classmethod
-    def from_id(cls: Type[T], id: UUID4) -> T:
+    def from_id(cls: Type[T], id: UUID4) -> Optional[T]:
         key = client.key(cls.datastore_kind, id)
         result = client.get(key)
 
@@ -95,7 +102,7 @@ class DatastoreModel(BaseModel):
         return cls.parse_obj(result)
 
     @classmethod
-    def from_type_and_id(cls: Type[T], subclass_name: str, id: UUID4) -> T:
+    def from_type_and_id(cls: Type[T], subclass_name: str, id: UUID4) -> Optional[T]:
         if subclass_name not in cls.subclasses:
             raise ValueError(f'Invalid type {subclass_name}')
         subclass = [
@@ -105,10 +112,25 @@ class DatastoreModel(BaseModel):
         return subclass.from_id(id)
 
     @classmethod
-    def from_query(cls: Type[T], filter_by: str, filter_for: str) -> List[T]:
-        query = client.query(kind=cls.datastore_kind)
-        query = query.add_filter(filter_by, '=', filter_for)
-        return [cls.parse_obj(result) for result in query.fetch()]
+    def from_unique_lookup(cls: Type[T], by: str, look_for: str) -> Optional[T]:
+        query_result = cls.from_query(filter_by=by, filter_for=look_for)
+        return next(query_result, None)
+
+    @classmethod
+    def from_lookup(cls: Type[T], look_for: str) -> Optional[T]:
+        if 'id' == cls.default_lookup_field:
+            return cls.from_id(look_for)
+        return cls.from_unique_lookup(cls.default_lookup_field, look_for)
+
+    @classmethod
+    def from_type_and_lookup(cls: Type[T], subclass_name: str, look_for: str) -> Optional[T]:
+        if subclass_name not in cls.subclasses:
+            raise ValueError(f'Invalid type {subclass_name}')
+        subclass = [
+            s for s in cls.__subclasses__()
+            if s.__name__.lower() == subclass_name
+        ][0]
+        return subclass.from_lookup(look_for)
 
     def children_of_type(self: Type[T], child_type: Type[C]) -> List[C]:
         return child_type.from_query(
@@ -122,16 +144,11 @@ class DatastoreModel(BaseModel):
 
 class Author(DatastoreModel):
     name: str
+    default_lookup_field: ClassVar[str] = 'name'
 
     @property
     def stories(self: Type[T]) -> List[Story]:
         return self.children_of_type(Story)
-
-    @classmethod
-    def from_name(cls: Type[T], name: str) -> T:
-        query = client.query(kind=cls.datastore_kind)
-        query = query.add_filter('name', '=', name)
-        return next((cls.parse_obj(result) for result in query.fetch()), None)
 
 
 class Universe(DatastoreModel):

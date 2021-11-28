@@ -2,6 +2,7 @@
 Runs the app
 """
 from pathlib import Path
+from typing import Union
 
 from fastapi import FastAPI, Request, status
 from fastapi.exception_handlers import http_exception_handler
@@ -67,29 +68,16 @@ async def home(request: Request) -> HTMLResponse:
     )
 
 
-@app.get('/authorbyname/{name}', response_model=models.Author)
-async def author_by_name(request: Request, name: str) -> models.Author:
-    author = models.Author.from_name(name)
-
-    if author is None:
-        raise StarletteHTTPException(status_code=status.HTTP_404_NOT_FOUND)
-
-    return format_template(request, author.name, author.name, 'author', author)
-
-
 @app.get('/{category}/{item_id}')
 async def page(
     request: Request,
     category: models.categories_literal,
-    item_id: UUID4
+    item_id: Union[UUID4, str]
 ) -> HTMLResponse:
     """
     Shows a page
     """
-    resource = models.DatastoreModel.from_type_and_id(
-        subclass_name=category,
-        id=item_id
-    )
+    resource = models.DatastoreModel.from_type_and_lookup(category, item_id)
 
     if resource is None:
         raise StarletteHTTPException(status_code=status.HTTP_404_NOT_FOUND)
