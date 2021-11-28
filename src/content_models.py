@@ -56,5 +56,6 @@ class Story(DatastoreModel):
         return Author.from_id_or_exception(id=self.author_id)
 
 
-# Literal can take a tuple but mypy doesn't like it - tell mypy to be quiet
+# Literal can take a tuple but it's a little too dynamic for mypy
+# Has to be ignored when used elsewhere for the same reason
 categories_literal = Literal[tuple(DatastoreModel.subclasses)]  # type: ignore

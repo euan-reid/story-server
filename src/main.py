@@ -55,7 +55,7 @@ async def home(request: Request) -> TemplateResponse:
 @app.get('/{category}/{name}')
 async def page(
     request: Request,
-    category: categories_literal,
+    category: categories_literal,  # type: ignore
     name: str
 ) -> TemplateResponse:
     """
