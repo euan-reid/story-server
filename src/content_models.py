@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import ClassVar, List, Literal
+from typing import List, Literal
 
 from pydantic import UUID4, validator
 
