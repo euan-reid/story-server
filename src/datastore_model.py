@@ -140,7 +140,7 @@ class DatastoreModel(BaseModel):
 
     @classmethod
     def from_name(cls: Type[T], name: str) -> Optional[T]:
-        return cls.from_unique_lookup(by='name', look_for=name)
+        return cls.from_unique_lookup(by='name', lookup=name)
 
     @classmethod
     def from_type_and_name(
