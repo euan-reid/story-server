@@ -30,7 +30,8 @@ def datastore_dict_conversion(d: dict) -> dict:
         else:
             raise ValueError(
                 f'{type(v)} could not be serialised to Datastore, must be one '
-                f'of {(datetime, bool, float, int, str, None, list, dict)}. (found at {k}: {v})'
+                f'of {(datetime, bool, float, int, str, None, list, dict)}. '
+                f'(found at {k}: {v})'
             )
     return converted
 
@@ -49,7 +50,8 @@ def datastore_list_conversion(a_list: list) -> list:
         else:
             raise ValueError(
                 f'{type(i)} could not be serialised to Datastore, must be one '
-                f'of {(datetime, bool, float, int, str, None, list, dict)}. (found at {i})'
+                f'of {(datetime, bool, float, int, str, None, list, dict)}. '
+                f'(found at {i})'
             )
     return converted
 
