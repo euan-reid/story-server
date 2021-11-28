@@ -121,6 +121,20 @@ class DatastoreModel(BaseModel):
         return next(query_result, None)
 
     @classmethod
+    def from_name(cls: Type[T], name: str) -> Optional[T]:
+        return cls.from_unique_lookup(by='name', look_for=name)
+
+    @classmethod
+    def from_type_and_name(cls: Type[T], subclass_name: str, name: str) -> Optional[T]:
+        if subclass_name not in cls.subclasses:
+            raise ValueError(f'Invalid type {subclass_name}')
+        subclass = [
+            s for s in cls.__subclasses__()
+            if s.__name__.lower() == subclass_name
+        ][0]
+        return subclass.from_name(name)
+
+    @classmethod
     def from_lookup(cls: Type[T], look_for: str) -> Optional[T]:
         if 'id' == cls.default_lookup_field:
             return cls.from_id(look_for)

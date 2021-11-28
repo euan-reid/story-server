@@ -9,7 +9,6 @@ from fastapi.exception_handlers import http_exception_handler
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from google.cloud import datastore
-from pydantic.types import UUID4
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from datastore_model import DatastoreModel
@@ -73,12 +72,12 @@ async def home(request: Request) -> HTMLResponse:
 async def page(
     request: Request,
     category: categories_literal,
-    item_id: Union[UUID4, str]
+    name: str
 ) -> HTMLResponse:
     """
     Shows a page
     """
-    resource = DatastoreModel.from_type_and_lookup(category, item_id)
+    resource = DatastoreModel.from_type_and_name(category, name)
 
     if resource is None:
         raise StarletteHTTPException(status_code=status.HTTP_404_NOT_FOUND)
