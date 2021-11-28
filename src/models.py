@@ -85,7 +85,7 @@ class DatastoreModel(BaseModel):
         return [s.datastore_kind for s in cls.__subclasses__()]
 
     @classmethod
-    def from_id(cls: Type[T], id: UUID4) -> T
+    def from_id(cls: Type[T], id: UUID4) -> T:
         key = client.key(cls.datastore_kind, id)
         result = client.get(key)
 
