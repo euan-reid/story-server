@@ -9,13 +9,14 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from google.cloud import datastore
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.templating import _TemplateResponse as TemplateResponse
 
 from config import settings
 from content_models import categories_literal
 from datastore_model import DatastoreModel
 
 client = datastore.Client()
-app = FastAPI(default_response_class=HTMLResponse, openapi_url=None)
+app = FastAPI(default_response_class=TemplateResponse, openapi_url=None)
 
 template_path = Path(__file__).resolve().parent / 'html'
 templates = Jinja2Templates(directory=str(template_path))
@@ -40,7 +41,7 @@ async def custom_http_exception_handler(
 
 
 @app.get('/')
-async def home(request: Request) -> HTMLResponse:
+async def home(request: Request) -> TemplateResponse:
     """
     Shows the homepage
     """
@@ -55,7 +56,7 @@ async def page(
     request: Request,
     category: categories_literal,
     name: str
-) -> HTMLResponse:
+) -> TemplateResponse:
     """
     Shows a page
     """
