@@ -1,4 +1,5 @@
 {% extends 'boilerplate/template.html' %}
+{% block title_prefix %}{{ resource.name }}{% endblock %}
 {% block content %}
 <p>Name: {{ resource.name }}</p>
 <p>Stories:</p>

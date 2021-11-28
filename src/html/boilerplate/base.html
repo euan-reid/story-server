@@ -3,7 +3,11 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>{{ header_title }}</title>
+		<title>{% block title %}{% block title_prefix %}{% endblock %} | {{ settings.site_name }}{% endblock %}</title>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/sandstone/bulmaswatch.min.css">
 	</head>
 	<body>
+    {% block body %}{% endblock %}
+	</body>
+</html>
+    

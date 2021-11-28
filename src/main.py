@@ -2,7 +2,6 @@
 Runs the app
 """
 from pathlib import Path
-from typing import Union
 
 from fastapi import FastAPI, Request, status
 from fastapi.exception_handlers import http_exception_handler
@@ -11,8 +10,9 @@ from fastapi.templating import Jinja2Templates
 from google.cloud import datastore
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from datastore_model import DatastoreModel
 from content_models import categories_literal
+from config import settings
+from datastore_model import DatastoreModel
 
 client = datastore.Client()
 app = FastAPI(default_response_class=HTMLResponse, openapi_url=None)
@@ -23,16 +23,13 @@ templates = Jinja2Templates(directory=str(template_path))
 
 def format_template(
     request: Request,
-    header_title: str,
-    page_title: str,
     category: str,
     resource: DatastoreModel
 ) -> templates.TemplateResponse:
     return templates.TemplateResponse(
         name=f'{category}.html',
         context={
-            'header_title': header_title,
-            'page_title': page_title,
+            'settings': settings,
             'request': request,
             'resource': resource
         }
@@ -50,7 +47,7 @@ async def custom_http_exception_handler(
     if exc.status_code == status.HTTP_404_NOT_FOUND:
         return templates.TemplateResponse(
             name='404.html',
-            context={'request': request},
+            context={'request': request, 'settings': settings},
             status_code=status.HTTP_404_NOT_FOUND
         )
     else:
@@ -64,11 +61,11 @@ async def home(request: Request) -> HTMLResponse:
     """
     return templates.TemplateResponse(
         name='test.html',
-        context={'request': request}
+        context={'request': request, 'settings': settings},
     )
 
 
-@app.get('/{category}/{item_id}')
+@app.get('/{category}/{name}')
 async def page(
     request: Request,
     category: categories_literal,
@@ -82,4 +79,4 @@ async def page(
     if resource is None:
         raise StarletteHTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-    return format_template(request, resource.name, resource.name, category, resource)
+    return format_template(request, category, resource)

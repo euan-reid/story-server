@@ -2,6 +2,7 @@ from pydantic import BaseSettings, ValidationError, validator
 
 
 class Settings(BaseSettings):
+    site_name: str = 'A Story Site'
     base_url: str = 'example.com'
     content_subdomain: str = 'www'
     cms_subdomain: str = 'author'
@@ -20,3 +21,6 @@ class Settings(BaseSettings):
             raise ValidationError(
                 f'Could not fetch the base_url from values list {values}'
             )
+
+
+settings = Settings()

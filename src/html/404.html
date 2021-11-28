@@ -1,3 +1,6 @@
-{% include 'boilerplate/header.html' %}
+{% extends 'boilerplate/template.html' %}
+{% block title %}{{ settings.site_name }}{% endblock %}
+{% block pagetitle %}{{ settings.site_name }}{% endblock %}
+{% block content %}
 {{ request.url.path }} not found!
-{% include 'boilerplate/footer.html' %}
+{% endblock %}
