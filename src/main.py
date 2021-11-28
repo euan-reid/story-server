@@ -7,7 +7,6 @@ from fastapi import FastAPI, Request, status
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
-from google.cloud import datastore
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.templating import _TemplateResponse as TemplateResponse
 
@@ -15,7 +14,6 @@ from config import settings
 from content_models import categories_literal
 from datastore_model import DatastoreModel
 
-client = datastore.Client()
 app = FastAPI(default_response_class=TemplateResponse, openapi_url=None)
 
 template_path = Path(__file__).resolve().parent / 'html'
