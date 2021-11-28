@@ -21,21 +21,6 @@ template_path = Path(__file__).resolve().parent / 'html'
 templates = Jinja2Templates(directory=str(template_path))
 
 
-def format_template(
-    request: Request,
-    category: str,
-    resource: DatastoreModel
-) -> templates.TemplateResponse:
-    return templates.TemplateResponse(
-        name=f'{category}.html',
-        context={
-            'settings': settings,
-            'request': request,
-            'resource': resource
-        }
-    )
-
-
 @app.exception_handler(StarletteHTTPException)
 async def custom_http_exception_handler(
     request: Request,
@@ -79,4 +64,11 @@ async def page(
     if resource is None:
         raise StarletteHTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-    return format_template(request, category, resource)
+    return templates.TemplateResponse(
+        name=f'{category}.html',
+        context={
+            'settings': settings,
+            'request': request,
+            'resource': resource
+        }
+    )
