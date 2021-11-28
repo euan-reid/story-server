@@ -12,7 +12,8 @@ from google.cloud import datastore
 from pydantic.types import UUID4
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-import models
+from datastore_model import DatastoreModel
+from content_models import categories_literal
 
 client = datastore.Client()
 app = FastAPI(default_response_class=HTMLResponse, openapi_url=None)
@@ -26,7 +27,7 @@ def format_template(
     header_title: str,
     page_title: str,
     category: str,
-    resource: models.DatastoreModel
+    resource: DatastoreModel
 ) -> templates.TemplateResponse:
     return templates.TemplateResponse(
         name=f'{category}.html',
@@ -71,13 +72,13 @@ async def home(request: Request) -> HTMLResponse:
 @app.get('/{category}/{item_id}')
 async def page(
     request: Request,
-    category: models.categories_literal,
+    category: categories_literal,
     item_id: Union[UUID4, str]
 ) -> HTMLResponse:
     """
     Shows a page
     """
-    resource = models.DatastoreModel.from_type_and_lookup(category, item_id)
+    resource = DatastoreModel.from_type_and_lookup(category, item_id)
 
     if resource is None:
         raise StarletteHTTPException(status_code=status.HTTP_404_NOT_FOUND)

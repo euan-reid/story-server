@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import ClassVar, List, Literal, Optional, Type, TypeVar
+from typing import ClassVar, List, Optional, Type, TypeVar
 from uuid import uuid4, UUID
 from google.cloud import datastore
 from pydantic import BaseModel, Field, UUID4
@@ -57,6 +57,7 @@ def datastore_list_conversion(a_list: list) -> list:
 class DatastoreModel(BaseModel):
     id: UUID4 = Field(default_factory=uuid4)
     default_lookup_field: ClassVar[str] = 'id'
+    parent: Optional[T] = None
 
     @classmethod
     @property
@@ -70,6 +71,8 @@ class DatastoreModel(BaseModel):
 
     @property
     def datastore_parent_key(self: Type[T]) -> datastore.Key:
+        if self.parent:
+            return self.parent.datastore_key
         return None
 
     @property
@@ -140,59 +143,3 @@ class DatastoreModel(BaseModel):
 
     def save(self: Type[T]) -> None:
         client.put(self.as_datastore_entity())
-
-
-class Author(DatastoreModel):
-    name: str
-    default_lookup_field: ClassVar[str] = 'name'
-
-    @property
-    def stories(self: Type[T]) -> List[Story]:
-        return self.children_of_type(Story)
-
-
-class Universe(DatastoreModel):
-    name: str
-
-    @property
-    def series(self: Type[T]) -> List[Series]:
-        return self.children_of_type(Series)
-
-
-class Series(DatastoreModel):
-    name: str
-    universe_id: UUID4
-
-    @property
-    def universe(self: Type[T]) -> Universe:
-        return Universe.from_id(id=self.universe_id)
-
-    @property
-    def stories(self: Type[T]) -> List[Story]:
-        return self.children_of_type(Story)
-
-    @property
-    def datastore_parent_key(self: Type[T]) -> datastore.Key:
-        return self.universe.datastore_key
-
-
-class Story(DatastoreModel):
-    title: str
-    author_id: UUID4
-    series_id: UUID4
-
-    @property
-    def datastore_parent_key(self: Type[T]) -> datastore.Key:
-        return self.series.datastore_key
-
-    @property
-    def author(self: Type[T]) -> Author:
-        return Author.from_id(id=self.author_id)
-
-    @property
-    def series(self: Type[T]) -> Series:
-        return Series.from_id(id=self.series_id)
-
-
-T.__constraints__ = tuple(DatastoreModel.__subclasses__())
-categories_literal = Literal[tuple(DatastoreModel.subclasses)]
