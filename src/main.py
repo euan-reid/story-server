@@ -46,7 +46,7 @@ async def home(request: Request) -> HTMLResponse:
     """
     return templates.TemplateResponse(
         name='test.html',
-        context={'request': request, 'settings': settings},
+        context={'request': request, 'settings': settings}
     )
 
 

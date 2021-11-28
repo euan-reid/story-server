@@ -121,13 +121,13 @@ class DatastoreModel(BaseModel):
         return cls.parse_obj(result)
 
     @classmethod
-    def from_type_and_id(cls: Type[T], subclass_name: str, id: UUID4) -> Optional[T]:
-        subclass = cls.subclass_from_name(subclass_name)
+    def from_type_and_id(cls: Type[T], name: str, id: UUID4) -> Optional[T]:
+        subclass = cls.subclass_from_name(name)
         return subclass.from_id(id)
 
     @classmethod
-    def from_unique_lookup(cls: Type[T], by: str, look_for: str) -> Optional[T]:
-        query_result = cls.from_query(filter_by=by, filter_for=look_for)
+    def from_unique_lookup(cls: Type[T], by: str, lookup: str) -> Optional[T]:
+        query_result = cls.from_query(filter_by=by, filter_for=lookup)
         return next(iter(query_result), None)
 
     @classmethod
