@@ -56,6 +56,7 @@ def datastore_list_conversion(a_list: list) -> list:
 
 class DatastoreModel(BaseModel):
     id: UUID4 = Field(default_factory=uuid4)
+    name: str
     default_lookup_field: ClassVar[str] = 'id'
     parent: Optional[T] = None
 

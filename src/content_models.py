@@ -8,7 +8,6 @@ from datastore_model import DatastoreModel
 
 
 class Author(DatastoreModel):
-    name: str
     default_lookup_field: ClassVar[str] = 'name'
 
     @property
@@ -25,7 +24,6 @@ class Universe(DatastoreModel):
 
 
 class Series(DatastoreModel):
-    name: str
     universe_id: UUID4
 
     @property
@@ -42,13 +40,16 @@ class Series(DatastoreModel):
 
 
 class Story(DatastoreModel):
-    title: str
     author_id: UUID4
     series_id: UUID4
 
     @validator('parent', always=True)
     def set_parent(cls, _, values) -> Series:
         return Series.from_id(values['series_id'])
+
+    @property
+    def title(self: Story) -> str:
+        return self.name
 
     @property
     def author(self: Story) -> Author:
