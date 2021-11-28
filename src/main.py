@@ -5,7 +5,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request, status
 from fastapi.exception_handlers import http_exception_handler
-from fastapi.responses import HTMLResponse
+from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from google.cloud import datastore
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -26,7 +26,7 @@ templates = Jinja2Templates(directory=str(template_path))
 async def custom_http_exception_handler(
     request: Request,
     exc: StarletteHTTPException
-) -> HTMLResponse:
+) -> TemplateResponse | JSONResponse:
     """
     Renders a 404 template page for 404 errors, otherwise use default behaviour
     """
@@ -37,6 +37,7 @@ async def custom_http_exception_handler(
             status_code=status.HTTP_404_NOT_FOUND
         )
     else:
+        # TODO: Consider more templated response pages
         return await http_exception_handler(request, exc)
 
 
