@@ -68,6 +68,19 @@ class DatastoreModel(BaseModel):
         return [s.datastore_kind for s in cls.__subclasses__()]
 
     @classmethod
+    def subclass_from_name(cls: Type[T], subclass_name: str) -> Type[T]:
+        if subclass_name not in cls.subclasses:
+            raise ValueError(f'Invalid type {subclass_name}')
+        subclass = next([
+            s for s in cls.__subclasses__()
+            if s.__name__.lower() == subclass_name
+        ], None)
+        if subclass is None:
+            # This path should never be exercised but guard for it just in case
+            raise ValueError(f'Could not retrieve {subclass_name}')
+        return subclass
+
+    @classmethod
     @property
     def datastore_kind(cls: Type[T]) -> str:
         return cls.__name__.lower()
@@ -109,12 +122,7 @@ class DatastoreModel(BaseModel):
 
     @classmethod
     def from_type_and_id(cls: Type[T], subclass_name: str, id: UUID4) -> Optional[T]:
-        if subclass_name not in cls.subclasses:
-            raise ValueError(f'Invalid type {subclass_name}')
-        subclass = [
-            s for s in cls.__subclasses__()
-            if s.__name__.lower() == subclass_name
-        ][0]
+        subclass = cls.subclass_from_name(subclass_name)
         return subclass.from_id(id)
 
     @classmethod
@@ -127,13 +135,12 @@ class DatastoreModel(BaseModel):
         return cls.from_unique_lookup(by='name', look_for=name)
 
     @classmethod
-    def from_type_and_name(cls: Type[T], subclass_name: str, name: str) -> Optional[T]:
-        if subclass_name not in cls.subclasses:
-            raise ValueError(f'Invalid type {subclass_name}')
-        subclass = [
-            s for s in cls.__subclasses__()
-            if s.__name__.lower() == subclass_name
-        ][0]
+    def from_type_and_name(
+        cls: Type[T],
+        subclass_name: str,
+        name: str
+    ) -> Optional[T]:
+        subclass = cls.subclass_from_name(subclass_name)
         return subclass.from_name(name)
 
     @classmethod
@@ -143,13 +150,12 @@ class DatastoreModel(BaseModel):
         return cls.from_unique_lookup(cls.default_lookup_field, look_for)
 
     @classmethod
-    def from_type_and_lookup(cls: Type[T], subclass_name: str, look_for: str) -> Optional[T]:
-        if subclass_name not in cls.subclasses:
-            raise ValueError(f'Invalid type {subclass_name}')
-        subclass = [
-            s for s in cls.__subclasses__()
-            if s.__name__.lower() == subclass_name
-        ][0]
+    def from_type_and_lookup(
+        cls: Type[T],
+        subclass_name: str,
+        look_for: str
+    ) -> Optional[T]:
+        subclass = cls.subclass_from_name(subclass_name)
         return subclass.from_lookup(look_for)
 
     def children_of_type(self: Type[T], child_type: Type[C]) -> List[C]:
