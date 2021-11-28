@@ -154,7 +154,7 @@ class DatastoreModel(BaseModel):
     @classmethod
     def from_lookup(cls: Type[T], look_for: str) -> Optional[T]:
         if 'id' == cls.default_lookup_field:
-            return cls.from_id(look_for)
+            return cls.from_id(UUID(look_for))
         return cls.from_unique_lookup(cls.default_lookup_field, look_for)
 
     @classmethod
