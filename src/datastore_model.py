@@ -87,19 +87,19 @@ class DatastoreModel(BaseModel):
         return cls.__name__.lower()
 
     @property
-    def datastore_parent_key(self: Type[T]) -> datastore.Key:
+    def datastore_parent_key(self: T) -> datastore.Key:
         if self.parent:
             return self.parent.datastore_key
         return None
 
     @property
-    def datastore_key(self: Type[T]) -> datastore.Key:
+    def datastore_key(self: T) -> datastore.Key:
         return client.key(
             self.datastore_kind, str(self.id),
             parent=self.datastore_parent_key
         )
 
-    def as_datastore_entity(self: Type[T]) -> datastore.Entity:
+    def as_datastore_entity(self: T) -> datastore.Entity:
         entity = datastore.Entity(key=self.datastore_key)
         self_as_dict = datastore_dict_conversion(self.dict())
         entity.update(self_as_dict)
@@ -166,11 +166,11 @@ class DatastoreModel(BaseModel):
         subclass = cls.subclass_from_name(subclass_name)
         return subclass.from_lookup(look_for)
 
-    def children_of_type(self: Type[T], child_type: Type[C]) -> List[C]:
+    def children_of_type(self: T, child_type: Type[C]) -> List[C]:
         return child_type.from_query(
             filter_by=self.datastore_kind,
             filter_for=str(self.id)
         )
 
-    def save(self: Type[T]) -> None:
+    def save(self: T) -> None:
         client.put(self.as_datastore_entity())
