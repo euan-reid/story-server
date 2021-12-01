@@ -40,20 +40,20 @@ def datastore_dict_conversion(dict_to_parse: Dict[str, Any]) -> Dict[str, Any]:
 
 def datastore_list_conversion(a_list: List[Any]) -> List[Any]:
     converted: List[Any] = []
-    for i in a_list:
-        if isinstance(i, UUID):
-            converted.append(str(i))
-        elif isinstance(i, DATASTORE_BASIC_TYPES):  # type: ignore
-            converted.append(i)
-        elif (isinstance(i, list)):
-            converted.append(datastore_list_conversion(i))
-        elif (isinstance(i, dict)):
-            converted.append(datastore_dict_conversion(i))
+    for item in a_list:
+        if isinstance(item, UUID):
+            converted.append(str(item))
+        elif isinstance(item, DATASTORE_BASIC_TYPES):  # type: ignore
+            converted.append(item)
+        elif isinstance(item, list):
+            converted.append(datastore_list_conversion(item))
+        elif isinstance(item, dict):
+            converted.append(datastore_dict_conversion(item))
         else:
             raise ValueError(
-                f'{type(i)} could not be serialised to Datastore, must be one '
-                f'of {(datetime, bool, float, int, str, None, list, dict)}. '
-                f'(found at {i})'
+                f'{type(item)} could not be serialised to Datastore, must be '
+                f'one of {DATASTORE_BASIC_TYPES + (list, dict)}. (found at '
+                f'{item})'
             )
     return converted
 
@@ -76,7 +76,7 @@ class DatastoreModel(BaseModel):
     def subclass_from_name(cls: Type[T], subclass_name: str) -> Type[T]:
         # cast() is unnecessary here too, but ditto above mypy struggles with
         # it and keeping mypy happy on defaults has value
-        if subclass_name not in cast(List[str], cls.subclasses):
+        if subclass_name not in cls.subclasses():
             raise ValueError(f'Invalid type {subclass_name}')
         subclass = next((
             s for s in cls.__subclasses__()
