@@ -3,6 +3,8 @@ flake8
 flake8-docstrings
 flake8-isort
 flake8-mypy
+flake8-pylint
+flake8-quotes
 pytest
 
 # Dev requirements first in case something fails
