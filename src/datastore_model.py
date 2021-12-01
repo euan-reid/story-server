@@ -18,22 +18,22 @@ C = TypeVar('C', bound='DatastoreModel')
 client = datastore.Client()
 
 
-def datastore_dict_conversion(d: Dict[str, Any]) -> Dict[str, Any]:
+def datastore_dict_conversion(dict_to_parse: Dict[str, Any]) -> Dict[str, Any]:
     converted: Dict[str, Any] = {}
-    for k, v in d.items():
-        if isinstance(v, UUID):
-            converted[k] = str(v)
-        elif isinstance(v, DATASTORE_BASIC_TYPES):  # type: ignore
-            converted[k] = v
-        elif (isinstance(v, list)):
-            converted[k] = datastore_list_conversion(v)
-        elif (isinstance(v, dict)):
-            converted[k] = datastore_dict_conversion(v)
+    for key, val in dict_to_parse.items():
+        if isinstance(val, UUID):
+            converted[key] = str(val)
+        elif isinstance(val, DATASTORE_BASIC_TYPES):  # type: ignore
+            converted[key] = val
+        elif isinstance(val, list):
+            converted[key] = datastore_list_conversion(val)
+        elif isinstance(val, dict):
+            converted[key] = datastore_dict_conversion(val)
         else:
             raise ValueError(
-                f'{type(v)} could not be serialised to Datastore, must be one '
-                f'of {(datetime, bool, float, int, str, None, list, dict)}. '
-                f'(found at {k}: {v})'
+                f'{type(val)} could not be serialised to Datastore, must be '
+                f'one of {DATASTORE_BASIC_TYPES + (list, dict)}. (found at '
+                f'{key}: {val})'
             )
     return converted
 
