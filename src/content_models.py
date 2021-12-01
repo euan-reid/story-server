@@ -24,7 +24,7 @@ class Series(DatastoreModel):
 
     @property
     def universe(self: Series) -> Universe:
-        return Universe.from_id_or_exception(id=self.universe_id)
+        return Universe.from_id_or_exception(datastore_id=self.universe_id)
 
     @property
     def stories(self: Series) -> List[Story]:
@@ -53,7 +53,7 @@ class Story(DatastoreModel):
 
     @property
     def author(self: Story) -> Author:
-        return Author.from_id_or_exception(id=self.author_id)
+        return Author.from_id_or_exception(datastore_id=self.author_id)
 
 
 # Literal can take a tuple but it's a little too dynamic for mypy

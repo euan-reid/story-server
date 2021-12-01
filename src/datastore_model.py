@@ -118,8 +118,8 @@ class DatastoreModel(BaseModel):
         return [cls.parse_obj(result) for result in query.fetch()]
 
     @classmethod
-    def from_id(cls: Type[T], id: UUID4) -> Optional[T]:
-        key = client.key(cls.datastore_kind, id)
+    def from_id(cls: Type[T], datastore_id: UUID4) -> Optional[T]:
+        key = client.key(cls.datastore_kind, datastore_id)
         result = client.get(key)
 
         if result is None:
@@ -128,10 +128,10 @@ class DatastoreModel(BaseModel):
         return cls.parse_obj(result)
 
     @classmethod
-    def from_id_or_exception(cls: Type[T], id: UUID4) -> T:
+    def from_id_or_exception(cls: Type[T], datastore_id: UUID4) -> T:
         result = cls.from_id(id)
         if result is None:
-            raise Exception(f'{cls.name} with id {id} not found')
+            raise Exception(f'{cls.name} with id {datastore_id} not found')
         return result
 
     @classmethod
