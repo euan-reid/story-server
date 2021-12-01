@@ -11,7 +11,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.templating import _TemplateResponse as TemplateResponse
 
 from config import settings
-from content_models import categories_literal
+from content_models import CategoriesLiteral
 from datastore_model import DatastoreModel
 
 app = FastAPI(default_response_class=TemplateResponse, openapi_url=None)
@@ -53,7 +53,7 @@ async def home(request: Request) -> TemplateResponse:
 @app.get('/{category}/{name}')
 async def page(
     request: Request,
-    category: categories_literal,  # type: ignore
+    category: CategoriesLiteral,  # type: ignore
     name: str
 ) -> TemplateResponse:
     """
