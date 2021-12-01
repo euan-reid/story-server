@@ -12,7 +12,13 @@
             "args": [
                 "main:app"
             ],
-            "jinja": true
+            "jinja": true,
+            "console": "internalConsole",
+            "internalConsoleOptions": "openOnSessionStart",
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bUvicorn running on\\s+(https?://\\S+)"
+            }
         }
     ]
 }
