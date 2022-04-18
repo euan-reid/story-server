@@ -78,10 +78,14 @@ class DatastoreModel(BaseModel):
         # it and keeping mypy happy on defaults has value
         if subclass_name not in cls.subclasses():
             raise ValueError(f'Invalid type {subclass_name}')
-        subclass = next((
-            s for s in cls.__subclasses__()
-            if s.__name__.lower() == subclass_name
-        ), None)
+        subclass = next(
+            (
+                s
+                for s in cls.__subclasses__()
+                if s.__name__.lower() == subclass_name
+            ),
+            None,
+        )
         if subclass is None:
             # This path should never be exercised but guard for it just in case
             raise ValueError(f'Could not retrieve {subclass_name}')
@@ -101,8 +105,9 @@ class DatastoreModel(BaseModel):
     @property
     def datastore_key(self: T) -> datastore.Key:
         return client.key(
-            self.datastore_kind, str(self.id),
-            parent=self.datastore_parent_key
+            self.datastore_kind,
+            str(self.id),
+            parent=self.datastore_parent_key,
         )
 
     def as_datastore_entity(self: T) -> datastore.Entity:
@@ -152,7 +157,7 @@ class DatastoreModel(BaseModel):
     def from_type_and_name(
         cls: Type[T],
         subclass_name: str,
-        name: str
+        name: str,
     ) -> Optional[T]:
         subclass = cls.subclass_from_name(subclass_name)
         return subclass.from_name(name)
@@ -167,7 +172,7 @@ class DatastoreModel(BaseModel):
     def from_type_and_lookup(
         cls: Type[T],
         subclass_name: str,
-        look_for: str
+        look_for: str,
     ) -> Optional[T]:
         subclass = cls.subclass_from_name(subclass_name)
         return subclass.from_lookup(look_for)
@@ -175,7 +180,7 @@ class DatastoreModel(BaseModel):
     def children_of_type(self: T, child_type: Type[C]) -> List[C]:
         return child_type.from_query(
             filter_by=self.datastore_kind,
-            filter_for=str(self.id)
+            filter_for=str(self.id),
         )
 
     def save(self: T) -> None:

@@ -12,7 +12,7 @@ class Settings(BaseSettings):
         'content_subdomain',
         'cms_subdomain',
         'search_subdomain',
-        pre=True
+        pre=True,
     )
     def add_base_url(cls, v, values):
         if base_url := values.get('base_url'):

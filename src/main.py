@@ -23,7 +23,7 @@ templates = Jinja2Templates(directory=str(template_path))
 @app.exception_handler(StarletteHTTPException)
 async def custom_http_exception_handler(
     request: Request,
-    exc: StarletteHTTPException
+    exc: StarletteHTTPException,
 ) -> TemplateResponse | JSONResponse:
     """
     Renders a 404 template page for 404 errors, otherwise use default behaviour
@@ -32,7 +32,7 @@ async def custom_http_exception_handler(
         return templates.TemplateResponse(
             name='404.html',
             context={'request': request, 'settings': settings},
-            status_code=status.HTTP_404_NOT_FOUND
+            status_code=status.HTTP_404_NOT_FOUND,
         )
     else:
         # TODO: Consider more templated response pages
@@ -46,7 +46,7 @@ async def home(request: Request) -> TemplateResponse:
     """
     return templates.TemplateResponse(
         name='test.html',
-        context={'request': request, 'settings': settings}
+        context={'request': request, 'settings': settings},
     )
 
 
@@ -54,7 +54,7 @@ async def home(request: Request) -> TemplateResponse:
 async def page(
     request: Request,
     category: CategoriesLiteral,  # type: ignore
-    name: str
+    name: str,
 ) -> TemplateResponse:
     """
     Shows a page
@@ -69,6 +69,6 @@ async def page(
         context={
             'settings': settings,
             'request': request,
-            'resource': resource
-        }
+            'resource': resource,
+        },
     )
