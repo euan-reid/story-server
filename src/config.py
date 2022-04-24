@@ -1,4 +1,4 @@
-from pydantic import BaseSettings, ValidationError, validator
+from pydantic import BaseSettings, validator
 
 
 class Settings(BaseSettings):
@@ -18,7 +18,7 @@ class Settings(BaseSettings):
         if base_url := values.get('base_url'):
             return f'{v}.{base_url}'
         else:
-            raise ValidationError(
+            raise ValueError(
                 f'Could not fetch the base_url from values list {values}'
             )
 

@@ -134,7 +134,7 @@ class DatastoreModel(BaseModel):
 
     @classmethod
     def from_id_or_exception(cls: Type[T], datastore_id: UUID4) -> T:
-        result = cls.from_id(id)
+        result = cls.from_id(datastore_id)
         if result is None:
             raise Exception(f'{cls.name} with id {datastore_id} not found')
         return result
