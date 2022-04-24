@@ -1,7 +1,10 @@
+"""Site configuration definition."""
 from pydantic import BaseSettings, validator
 
 
 class Settings(BaseSettings):
+    """Define settings and defaults (environment variables override values)."""
+
     site_name: str = 'A Story Site'
     base_url: str = 'example.com'
     content_subdomain: str = 'www'
@@ -15,6 +18,7 @@ class Settings(BaseSettings):
         pre=True,
     )
     def add_base_url(cls, v, values):
+        """Add the base URL to subdomain prefixes so the result is useful."""
         if base_url := values.get('base_url'):
             return f'{v}.{base_url}'
         else:

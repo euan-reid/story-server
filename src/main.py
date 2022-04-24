@@ -1,6 +1,4 @@
-"""
-Runs the app
-"""
+"""Run the app."""
 from pathlib import Path
 
 from fastapi import FastAPI, Request, status
@@ -25,25 +23,20 @@ async def custom_http_exception_handler(
     request: Request,
     exc: StarletteHTTPException,
 ) -> TemplateResponse | JSONResponse:
-    """
-    Renders a 404 template page for 404 errors, otherwise use default behaviour
-    """
+    """Render template pages for anticipatable errors. Fall back to default."""
     if exc.status_code == status.HTTP_404_NOT_FOUND:
         return templates.TemplateResponse(
             name='404.html',
             context={'request': request, 'settings': settings},
             status_code=status.HTTP_404_NOT_FOUND,
         )
-    else:
-        # TODO: Consider more templated response pages
-        return await http_exception_handler(request, exc)
+
+    return await http_exception_handler(request, exc)
 
 
 @app.get('/')
 async def home(request: Request) -> TemplateResponse:
-    """
-    Shows the homepage
-    """
+    """Show the homepage."""
     return templates.TemplateResponse(
         name='test.html',
         context={'request': request, 'settings': settings},
@@ -56,9 +49,7 @@ async def page(
     category: CategoriesLiteral,  # type: ignore
     name: str,
 ) -> TemplateResponse:
-    """
-    Shows a page
-    """
+    """Show a page."""
     resource = DatastoreModel.from_type_and_name(category, name)
 
     if resource is None:

@@ -1,3 +1,4 @@
+"""Define core datastore model used by content models."""
 from __future__ import annotations
 
 from datetime import datetime
