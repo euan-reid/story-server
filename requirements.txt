@@ -2,4 +2,5 @@ fastapi
 google-cloud-datastore
 jinja2
 markdown
+typing-extensions
 uvicorn

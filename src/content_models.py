@@ -9,13 +9,13 @@ from datastore_model import DatastoreModel
 
 class Author(DatastoreModel):
     @property
-    def stories(self: Author) -> List[Story]:
+    def stories(self) -> List[Story]:
         return self.children_of_type(Story)
 
 
 class Universe(DatastoreModel):
     @property
-    def series(self: Universe) -> List[Series]:
+    def series(self) -> List[Series]:
         return self.children_of_type(Series)
 
 
@@ -23,11 +23,11 @@ class Series(DatastoreModel):
     universe_id: UUID4
 
     @property
-    def universe(self: Series) -> Universe:
+    def universe(self) -> Universe:
         return Universe.from_id_or_exception(datastore_id=self.universe_id)
 
     @property
-    def stories(self: Series) -> List[Story]:
+    def stories(self) -> List[Story]:
         return self.children_of_type(Story)
 
     @validator('parent', always=True)
@@ -48,11 +48,11 @@ class Story(DatastoreModel):
         return parent
 
     @property
-    def title(self: Story) -> str:
+    def title(self) -> str:
         return self.name
 
     @property
-    def author(self: Story) -> Author:
+    def author(self) -> Author:
         return Author.from_id_or_exception(datastore_id=self.author_id)
 
 
