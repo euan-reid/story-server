@@ -30,3 +30,4 @@ repos:
   hooks:
     - id: mypy
       additional_dependencies: [pydantic]
+      args: [--config-file=setup.cfg]
