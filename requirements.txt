@@ -1,6 +1,6 @@
-fastapi
-google-cloud-datastore
-jinja2
-markdown
-typing-extensions
-uvicorn
+fastapi~=0.76
+google-cloud-datastore~=2.5
+jinja2~=3.1
+markdown~=3.3
+typing-extensions~=4.2
+uvicorn~=0.17
