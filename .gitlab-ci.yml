@@ -7,8 +7,14 @@
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
 - test
+
 sast:
   stage: test
+
+gemnasium-python-dependency_scanning:
+  stage: test
+  image: registry.gitlab.com/gitlab-org/security-products/analyzers/gemnasium-python:2-python-3.9
+
 include:
 - template: Security/SAST.gitlab-ci.yml
 - template: Security/Dependency-Scanning.gitlab-ci.yml
