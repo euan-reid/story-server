@@ -14,6 +14,8 @@ sast:
 gemnasium-python-dependency_scanning:
   stage: test
   image: registry.gitlab.com/gitlab-org/security-products/analyzers/gemnasium-python:2-python-3.9
+# Custom image no longer needed in a few weeks
+# https://docs.gitlab.com/ee/update/deprecations.html#dependency-scanning-python-39-and-36-image-deprecation
 
 include:
 - template: Security/SAST.gitlab-ci.yml
