@@ -3,7 +3,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request, status
 from fastapi.exception_handlers import http_exception_handler
-from fastapi.responses import JSONResponse
+from fastapi.responses import Response
 from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.templating import _TemplateResponse as TemplateResponse
@@ -22,7 +22,7 @@ templates = Jinja2Templates(directory=str(template_path))
 async def custom_http_exception_handler(
     request: Request,
     exc: StarletteHTTPException,
-) -> TemplateResponse | JSONResponse:
+) -> Response:
     """Render template pages for anticipatable errors. Fall back to default."""
     if exc.status_code == status.HTTP_404_NOT_FOUND:
         return templates.TemplateResponse(
@@ -50,7 +50,7 @@ async def page(
     name: str,
 ) -> TemplateResponse:
     """Show a page."""
-    resource = DatastoreModel.from_type_and_name(category, name)
+    resource = DatastoreModel.from_subclass_and_name(category, name)
 
     if resource is None:
         raise StarletteHTTPException(status_code=status.HTTP_404_NOT_FOUND)

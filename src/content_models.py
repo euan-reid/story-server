@@ -58,4 +58,4 @@ class Story(DatastoreModel):
 
 # Literal can take a tuple but it's a little too dynamic for mypy
 # Has to be ignored when used elsewhere for the same reason
-CategoriesLiteral = Literal[tuple(DatastoreModel.subclasses)]  # type: ignore
+CategoriesLiteral = Literal[tuple(DatastoreModel.subclasses())]  # type: ignore
