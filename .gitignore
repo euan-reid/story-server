@@ -3,3 +3,5 @@ nohup.out
 __pycache__
 .mypy_cache
 .pytest_cache
+.coverage
+coverage.xml
