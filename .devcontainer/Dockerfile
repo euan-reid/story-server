@@ -6,19 +6,27 @@
 ARG VARIANT="3.10-bullseye"
 FROM mcr.microsoft.com/vscode/devcontainers/python:0-${VARIANT}
 
-# Install gcloud cli and Datastore Emulator
-RUN export DEBIAN_FRONTEND=noninteractive \
-    && sudo apt-get update \
-    && sudo apt-get install -y \
+# Install additional source requirements
+RUN DEBIAN_FRONTEND=noninteractive apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         apt-transport-https \
         ca-certificates \
         gnupg
+
+# Add gcloud sources.list.d
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
-    | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
-    | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-RUN export DEBIAN_FRONTEND=noninteractive \
-    && sudo apt-get update \
-    && sudo apt-get install -y --no-install-recommends \
-        google-cloud-sdk \
-        google-cloud-sdk-datastore-emulator
+    | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+
+# Add gcloud GPG key to keyrings
+RUN mkdir /root/.gnupg
+RUN curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+    | gpg --dearmor \
+    | tee /usr/share/keyrings/cloud.google.gpg
+
+# Update apt with additional sources
+RUN DEBIAN_FRONTEND=noninteractive apt-get update
+
+# Install gcloud CLI for GCP auth and Datastore emulator
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    google-cloud-sdk \
+    google-cloud-sdk-datastore-emulator
