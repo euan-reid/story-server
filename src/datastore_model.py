@@ -2,12 +2,11 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, ClassVar, Dict, List, Optional, Type, TypeVar
+from typing import Any, ClassVar, Dict, List, Optional, Self, Type, TypeVar
 from uuid import UUID, uuid4
 
 from google.cloud import datastore
 from pydantic import UUID4, BaseModel, Field
-from typing_extensions import Self
 
 DATASTORE_BASIC_TYPES = (datetime, bool, float, int, str, type(None))
 
