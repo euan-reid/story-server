@@ -105,7 +105,7 @@ class DatastoreModel(BaseModel):
     def datastore_key(self) -> datastore.Key:
         """Generate a key based on type, id, and parent."""
         return client.key(
-            self.datastore_kind,
+            self.datastore_kind(),
             str(self.id),
             parent=self.datastore_parent_key,
         )
@@ -120,14 +120,14 @@ class DatastoreModel(BaseModel):
     @classmethod
     def from_query(cls, filter_by: str, filter_for: str) -> List[Self]:
         """Search datastore and return objects found."""
-        query = client.query(kind=cls.datastore_kind)
+        query = client.query(kind=cls.datastore_kind())
         query = query.add_filter(filter_by, '=', filter_for)
-        return [cls.parse_obj(result) for result in query.fetch()]
+        return [cls.parse_obj(result) for result in list(query.fetch())]
 
     @classmethod
     def from_id(cls, datastore_id: UUID4) -> Optional[Self]:
         """Fetch a single entity by its id, or None if not found."""
-        key = client.key(cls.datastore_kind, datastore_id)
+        key = client.key(cls.datastore_kind(), datastore_id)
         result = client.get(key)
 
         if result is None:
